@@ -32,27 +32,22 @@ public class SecurityConfig {
                                                   @Value("${client-permit-matchers}") String[] permitMatchers,
                                                   ReactiveClientRegistrationRepository repository) {
 
-        // Apply this filter-chain only to resources needing sessions
-        final var clientRoutes = Stream.of(securityMatchers).map(PathPatternParserServerWebExchangeMatcher::new)
+        final var clientRoutes = Stream.of(securityMatchers)
+                .map(PathPatternParserServerWebExchangeMatcher::new)
                 .map(ServerWebExchangeMatcher.class::cast)
                 .toList();
+
         http.securityMatcher(new OrServerWebExchangeMatcher(clientRoutes));
 
         http
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(permitMatchers).permitAll() // Allow public access to these paths
-                        .pathMatchers("/**").hasAuthority("ADMIN") // Restrict /admin/** to ADMIN role
-                        .anyExchange().authenticated() // Require authentication for all other paths
-                );
-
-        http
-                .oauth2Login(oAuth2LoginSpec -> {
-                    oAuth2LoginSpec.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"));
-                    oAuth2LoginSpec.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/401"));
-                    oAuth2LoginSpec.authorizationRequestResolver(pkceResolver(repository));
-                })
-                .exceptionHandling(exceptionHandlingSpec -> exceptionHandlingSpec
-                        .authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/admin/login")) // Redirect to admin login page
+                        .pathMatchers(permitMatchers).permitAll()
+                        .anyExchange().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/dashboard/overview"))
+                        .authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/401"))
+                        .authorizationRequestResolver(pkceResolver(repository))
                 )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
