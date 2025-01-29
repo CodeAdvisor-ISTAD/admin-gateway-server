@@ -4,7 +4,7 @@ services:
     build:
       context: . # Use the current directory for building
     ports:
-      - "1168:8168" # Map the application port
+      - "1169:8169" # Map the application port
     environment:
       SPRING_PROFILES_ACTIVE: prod # Set Spring profile if needed
     volumes:
