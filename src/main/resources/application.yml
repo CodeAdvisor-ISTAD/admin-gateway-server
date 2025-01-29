@@ -1,8 +1,16 @@
 client-security-matchers: >
     /dashboard/**,
     /**,
+    /forums/**,
+    /users/**,
+    /media/**,
+    /contents/**,
 
 client-permit-matchers: >
+    /forums/**,
+    /users/**,
+    /media/**,
+    /contents/**,
     /static/**,
     /_next/**,
     /login/**,
